@@ -1,60 +1,38 @@
-import express from "express";
-import connectDB from "./src/config/db.js";
-import recipeRouter from "./src/routes/recipeRoutes.js";
+import express from 'express';
+import morgan from 'morgan';
+import cors from 'cors';
+import connectDB from './src/config/db.js';
+import recipeRouter from './src/routes/recipeRoutes.js';
 
 const app = express();
-const port = 8080;
 
-// Middleware
+app.use(morgan('dev'));
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// CORS for deployment
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
+app.get('/', (req, res) => res.send('Recipe API is running'));
+
+app.use('/api/recipe', recipeRouter);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Internal Server Error' });
+});
+
+const start = async () => {
+  try {
+    const mongoUri = process.env.MONGO_URI;
+    if (!mongoUri) throw new Error('MONGO_URI not set in env');
+    await connectDB(mongoUri);
+    const PORT = process.env.PORT || 8000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Failed to start app:', err);
+    process.exit(1);
   }
-});
+};
 
-// Root route - THIS FIXES THE 404 ERROR
-app.get('/', (req, res) => {
-  res.json({ 
-    status: 'success', 
-    message: 'Recipe API is running!',
-    endpoints: {
-      'GET /recipes': 'Get all recipes',
-      'POST /recipes': 'Create a recipe',
-      'GET /recipes/:id': 'Get recipe by ID',
-      'PUT /recipes/:id': 'Update recipe by ID',
-      'DELETE /recipes/:id': 'Delete recipe by ID'
-    }
-  });
-});
-
-// API Routes
-app.use("/recipes", recipeRouter);
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: `Route ${req.originalUrl} not found`
-  });
-});
-
-// Connect to database first, then start server
-connectDB().then(() => {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-}).catch(err => {
-  console.error('Database connection failed:', err);
-  process.exit(1);
-});
-
+start();
 
