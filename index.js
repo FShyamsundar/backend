@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.get('/', (req, res) => res.send('Recipe API is running'));
 
-app.use('/api/recipe', recipeRouter);
+app.use('/recipes', recipeRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -21,10 +21,8 @@ app.use((err, req, res, next) => {
 
 const start = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI;
-    if (!mongoUri) throw new Error('MONGO_URI not set in env');
-    await connectDB(mongoUri);
-    const PORT = process.env.PORT || 8000;
+    await connectDB();
+    const PORT = process.env.PORT || 8080;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
