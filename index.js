@@ -3,10 +3,10 @@ import connectDB from "./src/config/db.js";
 import recipeRouter from "./src/routes/recipeRoutes.js";
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = 8080;
 
 // Middleware
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS for deployment
