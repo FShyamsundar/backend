@@ -15,6 +15,14 @@ export const createRecipe = async (req, res) => {
             });
         }
 
+        const existingRecipe = await Recipe.findOne({ title: title.trim() });
+        if (existingRecipe) {
+            return res.status(400).json({
+                status: "error",
+                message: "Recipe with this title already exists",
+            });
+        }
+
         const newRecipe = new Recipe({
             title,
             description,
@@ -29,6 +37,8 @@ export const createRecipe = async (req, res) => {
             message: "Recipe created successfully",
             data: newRecipe,
         });
+
+        
     } catch (error) {
         
         if (error.code === 11000) {

@@ -5,6 +5,7 @@ const RecipeSchema = new mongoose.Schema({
         required: true,
         trim: true,
         minlength: 3,
+        unique: true,
     },
     description: {
         type: String,
@@ -34,5 +35,5 @@ const RecipeSchema = new mongoose.Schema({
     
 });
 
-const Recipe = mongoose.model('RecipeNew',RecipeSchema);
+const Recipe = mongoose.model('Recipe',RecipeSchema);
 export default Recipe;
