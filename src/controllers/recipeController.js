@@ -7,7 +7,7 @@ export const createRecipe = async (req, res) => {
     try {
         const { title, description, ingredients, instructions, cookingTime, difficulty } = req.body;
 
-        // Validation
+
         if (!title || !description || !ingredients || !instructions || !cookingTime || !difficulty) {
             return res.status(400).json({
                 status: "error",
@@ -30,6 +30,23 @@ export const createRecipe = async (req, res) => {
             data: newRecipe,
         });
     } catch (error) {
+        
+        if (error.code === 11000) {
+            const field = Object.keys(error.keyPattern)[0];
+            return res.status(400).json({
+                status: "error",
+                message: `Recipe with this ${field} already exists`,
+                field: field
+            });
+        }
+        
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                status: "error",
+                message: error.message,
+            });
+        }
+        
         res.status(500).json({
             status: "error",
             message: error.message,
