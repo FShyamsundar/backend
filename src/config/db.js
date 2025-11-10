@@ -1,18 +1,16 @@
 import mongoose from "mongoose";
-const mongodbURI = "mongodb+srv://sundarshyam27241_db_user:7yIJerJ7jW2Qd99o@cluster0.5j0siyw.mongodb.net/sampleDB?appName=Cluster0";
+import dotenv from "dotenv";
 
-const connectDB = async (uri) => {
+dotenv.config();
+
+const connectDB = async () => {
+
+    const mongodbURI =`mongodb+srv://${process.env.DB_USER}:${ process.env.DB_PASSWORD }@cluster0.5j0siyw.mongodb.net/${process.env.DB_NAME }?retryWrites=true&w=majority&appName=Cluster0`;
     try {
-        const connectionString = uri || mongodbURI;
-        const conn = await mongoose.connect(connectionString, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
-        return conn;
+        await mongoose.connect(mongodbURI);
+        console.log("Connected to MongoDB");
     } catch (error) {
-        console.error("Error connecting to MongoDB:", error.message);
-        throw error;
+        console.error("Error connecting to MongoDB:", error);
     }
 };
 

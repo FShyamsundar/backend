@@ -1,36 +1,28 @@
 import express from 'express';
-import morgan from 'morgan';
-import cors from 'cors';
 import connectDB from './src/config/db.js';
 import recipeRouter from './src/routes/recipeRoutes.js';
+import errorHandler from './src/middlewares/errorHandler.js';
+import  Dotenv  from 'dotenv';
 
+Dotenv.config();
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-app.use(morgan('dev'));
-app.use(cors());
+
+
 app.use(express.json());
 
 app.get('/', (req, res) => res.send('Recipe API is running'));
 
 app.use('/recipes', recipeRouter);
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Internal Server Error' });
+
+
+app.use(errorHandler)
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  connectDB();
 });
 
-const start = async () => {
-  try {
-    await connectDB();
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error('Failed to start app:', err);
-    process.exit(1);
-  }
-};
-
-start();
-
+//server running port url
+//http://localhost:8000/
